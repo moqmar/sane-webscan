@@ -1,0 +1,155 @@
+html:not(.fontawesome-i2svg-active) .svg-inline--fa { display: none; }
+
+html {
+    font-family: "Fira Sans", sans-serif;
+    background: #e0eded; color: #192b2b;
+}
+body  {
+    padding: 0; margin: 0;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+}
+
+main {
+    background: #fff; border-left: 1px solid #63a5a5;
+    border-radius: 2px;
+    box-shadow: 0 5px 25px -1px rgba(0,0,0,0.25);
+    display: flex;
+    overflow: hidden;
+}
+
+.controls {
+    display: flex; flex-direction: column;
+}
+.option {
+    padding: 15px 25px;
+    display: flex; align-items: center;
+}
+.option>label:first-child { width: 8em; }
+.option>label:first-child + :last-child { flex-grow: 1; }
+.option:first-child { padding-top: 25px; }
+.option:last-child { padding-bottom: 25px; }
+
+.actions { display: flex; border-bottom: 1px solid #63a5a5; border-top: 1px solid #63a5a5; }
+.actions button {
+    margin: 0; padding: 15px 25px;
+    font: inherit;
+    cursor: pointer;
+    border: none; background: #e0eded; color: #000;
+}
+.actions button:not(:last-child) { border-right: 1px solid #63a5a5; }
+.actions button:hover { background: #d3e6e6; }
+.actions button.primary {
+    background: #95c2c2; color: #000;
+    flex-grow: 1;
+}
+.actions button.primary:hover { background: #89baba; }
+
+[type=checkbox].toggle { display: none; }
+[type=checkbox].toggle + label {
+    background: #e0eded; border: 1px solid #63a5a5; border-radius: 16px;
+    height: 32px; width: 48px;
+    margin: 0 5px;
+    position: relative;
+    cursor: pointer;
+}
+[type=checkbox].toggle + label:before {
+    content: "";
+    position: absolute;
+    left: 0px; top: 0px; bottom: 0px; height: 32px; width: 32px;
+    background: #95c2c2;
+    border-radius: 16px;
+    transition: transform 0.2s;
+}
+[type=checkbox].toggle + label:hover:before { background: #89baba; }
+[type=checkbox].toggle:checked + label:before {
+    transform: translateX(16px);
+}
+
+[type=radio].toggle { display: none }
+[type=radio].toggle + label {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 12px 5px 8px;
+    width: 3.5em;
+    background: #e0eded; border: 1px solid #63a5a5;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    cursor: pointer;
+}
+[type=radio].toggle + label:hover { background: #d3e6e6; }
+[type=radio].toggle + label:last-child {
+    border-right: 1px solid #63a5a5;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+[type=radio].toggle + label + [type=radio].toggle + label {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+[type=radio].toggle + label .svg-inline--fa {
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+[type=radio].toggle:checked + label {
+    background: #95c2c2;    
+}
+[type=radio].toggle:checked + label:hover { background: #89baba; }
+
+.dropdown-toggle { border: none !important; padding: 15px !important; background: #e0eded !important; border-bottom: 1px solid #63a5a5 !important; border-top: 1px solid #63a5a5 !important; border-radius: 0 !important; }
+.clear { display: none !important; }
+.dropdown-menu { box-shadow: none !important; border-bottom: 1px solid #63a5a5 !important; background: #fff !important; overflow-y: auto !important; }
+
+.vue-slider { background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 4'><path stroke='%2363a5a5' d='M0 2h1'/></svg>") !important; position: relative; }
+.vue-slider-process { background: #95c2c2 !important; }
+.vue-slider-dot { box-shadow: none !important; background: #95c2c2 !important; border: 1px solid #63a5a5; }
+.vue-slider-dot:hover { background: #89baba !important; }
+.vue-slider-tooltip { background: #d3e6e6 !important; border: 1px solid #63a5a5 !important; color: inherit !important; box-shadow: none !important; }
+
+.files {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+.file {
+    display: flex;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+.file>input { flex-grow: 1; border: none; padding: 25px 4px; }
+.file>span {
+    padding: 5px 5px;
+    width: 3.2em;
+    display: flex; align-items: center; justify-content: center;
+}
+.file>span>img {
+    max-width: 3.2em; max-height: 3.7em;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+.file>span>svg { cursor: pointer; }
+
+.preview {
+    background-color: #c7dede;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23e0eded' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.4);
+    overflow: hidden;
+}
+
+.crop {
+    width: 40em; height: 60em;
+    display: flex; flex-wrap: wrap;
+    position: relative;
+}
+.crop>img { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+.crop>div:not(.selection) { background: rgba(0,0,0,0.4); }
+.crop>div.right { flex-grow: 1; }
+.crop>div.top, .crop>div.bottom { width: 100%; }
+.crop>div.bottom { height: 100%; }
+.crop>div.selection { position: relative; cursor: move; }
+.crop>div.selection>div { background: #fff; width: 8px; height: 8px; border: 1px solid #000; border-radius: 5px; position: absolute; transform: translate(-50%, -50%); }
+.crop>div.selection>div:before { content: ""; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; }
+.crop>div.selection>[data-direction=top-left] { top: 0; left: 0; cursor: nwse-resize; }
+.crop>div.selection>[data-direction=top] { top: 0; left: 50%; cursor: ns-resize; }
+.crop>div.selection>[data-direction=top-right] { top: 0; left: 100%; cursor: nesw-resize; }
+.crop>div.selection>[data-direction=left] { top: 50%; left: 0; cursor: ew-resize; }
+.crop>div.selection>[data-direction=right] { top: 50%; left: 100%; cursor: ew-resize; }
+.crop>div.selection>[data-direction=bottom-left] { top: 100%; left: 0; cursor: nesw-resize; }
+.crop>div.selection>[data-direction=bottom] { top: 100%; left: 50%; cursor: ns-resize; }
+.crop>div.selection>[data-direction=bottom-right] { top: 100%; left: 100%; cursor: nwse-resize; }

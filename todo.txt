@@ -1,0 +1,19 @@
+Iconbreite
+Label links groß schreiben?
+Ausrichtung der Label?
+Select-Box: Vorauswahl & Farben/Rand bei Auswahl
+Slider: sinnvolle Werte (von SANE übernehmen?)
+Keine Animationen bei Select und Slidern
+Dateiformat vorauswählen
+Fortschrittsbalken
+Crop-Funktion
+Auf allen Bildschirmen gleich
+Warnung wenn JS deaktiviert ist
+Lokalisierung
+Scan-Funktionalität
+Seiten bearbeiten (Crop, rest geblurrt)
+Drag & Drop von Seiten
+Favicon in schön
+Funktion am Handy
+Einstellungen im localStorage speichern
+Alle Resourcen offline verfügbar machen

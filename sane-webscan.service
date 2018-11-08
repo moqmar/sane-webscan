@@ -7,7 +7,7 @@ Wants=saned.service
 Type=simple
 ExecStart=/root/go/bin/sane-webscan
 
-Restart=on-failure
+Restart=always
 
 Environment=PORT=80
 

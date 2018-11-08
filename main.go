@@ -6,6 +6,7 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
 
@@ -22,6 +23,19 @@ func main() {
 	defer sane.Exit()
 	log.Printf("Initialized sane. (1/4)\n")
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Kill)
+	go func() {
+		for range c {
+			for _, c := range con {
+				c.Cancel()
+				c.Close()
+			}
+			os.Exit(0)
+		}
+	}()
+
 	dev, err = sane.Devices()
 	if err != nil {
 		panic(err)
@@ -36,7 +50,6 @@ func main() {
 		con[device.Name] = connection
 		opt[device.Name] = connection.Options()
 		// TODO: default options
-		defer connection.Close()
 	}
 	log.Printf("Initialized devices: %d found. (2/4)\n", len(dev))
 

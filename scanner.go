@@ -32,9 +32,8 @@ func scan(c *gin.Context) {
 		c.String(500, "Device not found")
 	}
 
-	options := map[string]interface{}{}
-	c.Bind(options)
-	for option, value := range options {
+	c.Request.ParseForm()
+	for option, value := range c.Request.PostForm {
 		info, err := connection.SetOption(option, value)
 		log.Printf("Setting option %s to '%s': %+v%s", option, value, info, err)
 	}

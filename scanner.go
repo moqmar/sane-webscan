@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/png"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjgq/sane"
@@ -29,6 +30,13 @@ func scan(c *gin.Context) {
 	if !ok {
 		c.Header("Content-Type", "text/plain")
 		c.String(500, "Device not found")
+	}
+
+	options := map[string]interface{}{}
+	c.Bind(options)
+	for option, value := range options {
+		info, err := connection.SetOption(option, value)
+		log.Printf("Setting option %s to '%s': %+v%s", option, value, info, err)
 	}
 
 	connection.Start()

@@ -64,7 +64,7 @@ func main() {
 
 	r.GET("/devices.json", devices)
 	r.GET("/options.json", options)
-	r.GET("/scan.png", scan)
+	r.POST("/scan.png", scan)
 
 	for _, asset := range AssetNames() {
 		log.Printf("Loading asset: %s\n", asset)

@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/png"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjgq/sane"
@@ -32,13 +31,21 @@ func scan(c *gin.Context) {
 		c.String(500, "Device not found")
 	}
 
-	c.Request.ParseForm()
+	/*c.Request.ParseForm()
 	for option, value := range c.Request.PostForm {
-		info, err := connection.SetOption(option, value)
-		log.Printf("Setting option %s to '%s': %+v%s", option, value, info, err)
-	}
+		info, err := connection.SetOption(option, value[0])
+		log.Printf("Setting option %s to '%s': %+v%s", option, value[0], info, err)
+	}*/
+	connection.SetOption("resolution", 3)
+	connection.SetOption("brightness", 1000)
+	connection.SetOption("contrast", 1000)
+	connection.SetOption("tl-x", 0)
+	connection.SetOption("tl-y", 0)
+	connection.SetOption("br-x", 210)
+	connection.SetOption("br-y", 297)
+	connection.SetOption("compression", 0)
+	connection.SetOption("mode", 2)
 
-	connection.Start()
 	image, err := connection.ReadImage()
 	if err != nil {
 		c.Header("Content-Type", "text/plain")

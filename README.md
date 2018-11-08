@@ -4,8 +4,13 @@ This application is currently under development and does not work yet, but will 
 
 - scanner button support (including copying)
 - PDF with OCR and multiple pages
-- multiple scanners
+- scanner selection
 - single binary
+
+TODO:
+- device blacklist
+- option mappings for devices
+- 
 
 ![](ui-concept.png)
 
@@ -26,6 +31,6 @@ wget https://teahub.io/momar/sane-webscan/raw/branch/master/sane-webscan.service
 systemctl enable sane-webscan.service
 systemctl start sane-webscan.service
 
-# Enable CUPS web interface
+# Enable CUPS web interface on port 631
 cupsctl --remote-admin --remote-any --share-printers
 ```

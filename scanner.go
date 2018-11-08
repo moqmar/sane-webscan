@@ -8,32 +8,30 @@ import (
 )
 
 var dev []sane.Device
+var opt map[string][]sane.Option
+var con map[string]*sane.Conn
 
 func devices(c *gin.Context) {
 	c.JSON(200, dev)
 }
 
 func options(c *gin.Context) {
-	connection, err := sane.Open(c.Query("scanner"))
-	if err != nil {
+	options, ok := opt[c.Query("device")]
+	if !ok {
 		c.Header("Content-Type", "text/plain")
-		c.String(500, "Scanner Connection Error: %s", err)
-		return
+		c.String(500, "Device not found")
 	}
-
-	options := connection.Options()
 	c.JSON(200, options)
 }
 
 func scan(c *gin.Context) {
-	connection, err := sane.Open(c.Query("scanner"))
-	defer connection.Close()
-	if err != nil {
+	connection, ok := con[c.Query("device")]
+	if !ok {
 		c.Header("Content-Type", "text/plain")
-		c.String(500, "Scanner Connection Error: %s", err)
-		return
+		c.String(500, "Device not found")
 	}
 
+	connection.Start()
 	image, err := connection.ReadImage()
 	if err != nil {
 		c.Header("Content-Type", "text/plain")

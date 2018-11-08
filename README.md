@@ -16,6 +16,9 @@ TODO:
 
 ## Installation on an Orange Pi Zero with Armbian Bionic
 ```bash
+# For easy access at http://scanner/
+hostnamectl set-hostname scanner
+
 # Enable 1GB swap for GCC
 dd if=/dev/zero of=/var/swap bs=1024 count=1048576
 chmod 600 /var/swap

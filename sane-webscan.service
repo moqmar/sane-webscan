@@ -1,0 +1,15 @@
+[Unit]
+Description=SANE Webscan
+After=syslog.target network.target cups.service
+Wants=saned.service 
+
+[Service]
+Type=simple
+ExecStart=/root/go/bin/sane-webscan
+
+Restart=on-failure
+
+Environment=PORT=80
+
+[Install]
+WantedBy=multi-user.target

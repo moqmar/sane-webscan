@@ -7,9 +7,9 @@ import (
 	"github.com/tjgq/sane"
 )
 
-var dev []sane.Device
-var opt map[string][]sane.Option
-var con map[string]*sane.Conn
+var dev []sane.Device{}
+var opt = map[string][]sane.Option{}
+var con = map[string]*sane.Conn{}
 
 func devices(c *gin.Context) {
 	c.JSON(200, dev)

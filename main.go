@@ -23,8 +23,8 @@ func main() {
 	buttons()
 
 	r.GET("/devices.json", devices)
-	r.GET("/:scanner/options.json", options)
-	r.GET("/:scanner/scan.png", scan)
+	r.GET("/options.json", options)
+	r.GET("/scan.png", scan)
 
 	for _, asset := range AssetNames() {
 		log.Printf("Loading asset: %s\n", asset)

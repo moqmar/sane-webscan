@@ -19,7 +19,7 @@ func devices(c *gin.Context) {
 }
 
 func options(c *gin.Context) {
-	connection, err := sane.Open(c.Param("scanner"))
+	connection, err := sane.Open(c.Query("scanner"))
 	if err != nil {
 		c.Header("Content-Type", "text/plain")
 		c.String(500, "Scanner Connection Error: %s", err)
@@ -31,7 +31,7 @@ func options(c *gin.Context) {
 }
 
 func scan(c *gin.Context) {
-	connection, err := sane.Open(c.Param("scanner"))
+	connection, err := sane.Open(c.Query("scanner"))
 	defer connection.Close()
 	if err != nil {
 		c.Header("Content-Type", "text/plain")

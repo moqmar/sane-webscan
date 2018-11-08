@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"mime"
 	"net/http"
@@ -21,16 +20,16 @@ func main() {
 		panic(err)
 	}
 	defer sane.Exit()
-	fmt.Printf("Initialized sane.\n")
+	log.Printf("Initialized sane. (1/4)\n")
 
 	dev, err = sane.Devices()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Initialized devices: %d found.\n", len(dev))
+	log.Printf("Initialized devices: %d found. (2/4)\n", len(dev))
 
 	buttons()
-	fmt.Printf("Initialized buttons.\n")
+	log.Printf("Initialized buttons. (3/4)\n")
 
 	if r, _ := os.LookupEnv("GIN_RELEASE"); r != "debug" {
 		gin.SetMode(gin.ReleaseMode)
@@ -46,7 +45,7 @@ func main() {
 		r.GET(strings.TrimSuffix(strings.TrimPrefix(asset, "web"), "index.html"), serveAsset)
 	}
 
-	fmt.Printf("Initialized webserver (default port: 8080).\n")
+	log.Printf("Initialized webserver (default port: 8080). (4/4)\n")
 
 	err = r.Run()
 	if err != nil {

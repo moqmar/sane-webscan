@@ -46,7 +46,7 @@ func main() {
 		r.GET(strings.TrimSuffix(strings.TrimPrefix(asset, "web"), "index.html"), serveAsset)
 	}
 
-	fmt.Printf("Initialized webserver (default port: 8080).\n", r)
+	fmt.Printf("Initialized webserver (default port: 8080).\n")
 
 	err = r.Run()
 	if err != nil {

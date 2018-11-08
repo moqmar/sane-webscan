@@ -22,7 +22,7 @@ func options(c *gin.Context) {
 	}
 
 	options := connection.Options()
-	c.String(200, "%+v\n", options)
+	c.JSON(200, options)
 }
 
 func scan(c *gin.Context) {

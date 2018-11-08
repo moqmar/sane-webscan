@@ -7,15 +7,10 @@ import (
 	"github.com/tjgq/sane"
 )
 
-func devices(c *gin.Context) {
-	devices, err := sane.Devices()
-	if err != nil {
-		c.Header("Content-Type", "text/plain")
-		c.String(500, "Device List Error: %s", err)
-		return
-	}
+var dev []sane.Device
 
-	c.String(200, "%+v\n", devices)
+func devices(c *gin.Context) {
+	c.JSON(200, dev)
 }
 
 func options(c *gin.Context) {

@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"mime"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,14 +15,27 @@ import (
 )
 
 func main() {
-	r := gin.Default()
 
-	if err := sane.Init(); err != nil {
+	err := sane.Init()
+	if err != nil {
 		panic(err)
 	}
 	defer sane.Exit()
+	fmt.Printf("Initialized sane.\n")
+
+	dev, err = sane.Devices()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Initialized devices: %d found.\n", len(dev))
 
 	buttons()
+	fmt.Printf("Initialized buttons.\n")
+
+	if r, _ := os.LookupEnv("GIN_RELEASE"); r != "debug" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	r := gin.Default()
 
 	r.GET("/devices.json", devices)
 	r.GET("/options.json", options)
@@ -31,7 +46,12 @@ func main() {
 		r.GET(strings.TrimSuffix(strings.TrimPrefix(asset, "web"), "index.html"), serveAsset)
 	}
 
-	r.Run()
+	fmt.Printf("Initialized webserver (default port: 8080).\n", r)
+
+	err = r.Run()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func serveAsset(c *gin.Context) {

@@ -25,4 +25,7 @@ go get -u teahub.io/momar/sane-webscan
 wget https://teahub.io/momar/sane-webscan/raw/branch/master/sane-webscan.service -O /etc/systemd/system/sane-webscan.service
 systemctl enable sane-webscan.service
 systemctl start sane-webscan.service
+
+# Enable CUPS web interface
+cupsctl --remote-admin --remote-any --share-printers
 ```

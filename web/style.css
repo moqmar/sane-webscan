@@ -1,7 +1,7 @@
 html:not(.fontawesome-i2svg-active) .svg-inline--fa { display: none; }
 
 html {
-    font-family: "Fira Sans", sans-serif;
+    font-family: "Fira Sans", sans-serif; font-size: 12px;
     background: #e0eded; color: #192b2b;
 }
 body  {

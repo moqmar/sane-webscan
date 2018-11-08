@@ -6,4 +6,3 @@ build-dev:
 	go build -o sane-webscan *.go
 run: build-dev
 	./sane-webscan
-	

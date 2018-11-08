@@ -48,5 +48,8 @@ func scan(c *gin.Context) {
 
 	c.Header("Content-Type", "image/png")
 	c.Status(200)
-	png.Encode(c.Writer, image)
+	err := png.Encode(c.Writer, image)
+	if err != nil {
+		c.String(500, "Image Encoding Error: %s", err)
+	}
 }

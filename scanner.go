@@ -7,7 +7,7 @@ import (
 	"github.com/tjgq/sane"
 )
 
-var dev []sane.Device{}
+var dev []sane.Device
 var opt = map[string][]sane.Option{}
 var con = map[string]*sane.Conn{}
 

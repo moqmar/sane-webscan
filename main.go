@@ -40,12 +40,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	for _, device := range dev {
+	for i, device := range dev {
 		// TODO: blacklist
 		connection, err := sane.Open(device.Name)
 		if err != nil {
-			// TODO: scanners can be offline, this should be a warning?
-			panic(err)
+			log.Printf("Warning: device is offline (%s): %s", err, device.Name)
+			dev = append(dev[:i], dev[i+1:]...)
+			continue
 		}
 		con[device.Name] = connection
 		opt[device.Name] = connection.Options()

@@ -51,7 +51,7 @@ func scan(c *gin.Context) {
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
-	err := doScan(device, f, map[string]interface{}{}, enc.Encode)
+	err = doScan(device, f, map[string]interface{}{}, enc.Encode)
 	if errh(err, c) {
 		return
 	}
@@ -68,7 +68,7 @@ func scanJpg(c *gin.Context) {
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
-	err := doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+	err = doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})

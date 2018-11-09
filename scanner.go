@@ -7,7 +7,6 @@ import (
 	"image/png"
 	"io"
 	"log"
-	"net/url"
 	"os"
 	"os/exec"
 
@@ -44,13 +43,21 @@ func options(c *gin.Context) {
 func scan(c *gin.Context) {
 	c.Header("Content-Type", "image/png")
 	enc := png.Encoder{CompressionLevel: png.BestCompression}
-	err := doScan(c.Query("device"), c.Writer, url.Values{}, enc.Encode)
+	device := c.Query("device")
+	if device == "" {
+		device = dev[0].Name
+	}
+	err := doScan(device, c.Writer, map[string]interface{}{}, enc.Encode)
 	errh(err, c)
 }
 
 func scanJpg(c *gin.Context) {
 	c.Header("Content-Type", "image/jpeg")
-	err := doScan(c.Query("device"), c.Writer, url.Values{}, func(w io.Writer, m image.Image) error {
+	device := c.Query("device")
+	if device == "" {
+		device = dev[0].Name
+	}
+	err := doScan(device, c.Writer, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
@@ -64,7 +71,13 @@ func scanPdf(c *gin.Context) {
 		return
 	}
 
-	err = doScan(c.Query("device"), f, url.Values{}, func(w io.Writer, m image.Image) error {
+	device := c.Query("device")
+	if device == "" {
+		device = dev[0].Name
+	}
+	err = doScan(device, f, map[string]interface{}{
+		"resolution": 300,
+	}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
@@ -87,23 +100,20 @@ func scanPdf(c *gin.Context) {
 	c.File("/tmp/sane-webscan-convert_ocr.pdf")
 }
 
-func doScan(device string, w io.Writer, config url.Values, enc func(io.Writer, image.Image) error) error {
+func doScan(device string, w io.Writer, config map[string]interface{}, enc func(io.Writer, image.Image) error) error {
 	connection, ok := con[device]
 	if !ok {
 		return errors.New("Device not found")
 	}
 
 	var defaultConfig = map[string]interface{}{
-		"source":        "Flatbed",
-		"preview":       false,
-		"depth":         16,
-		"custom-gamma":  false,
-		"swdskew":       true,
-		"swcrop":        true,
-		"swdespeck":     true,
-		"swderotate":    true,
-		"lamp-off-time": 2,
-		"lamp-off-scan": false,
+		"preview":      false,
+		"depth":        16,
+		"custom-gamma": false,
+		//"swdskew":       true,
+		//"swcrop":        true,
+		//"swdespeck":     true,
+		//"swderotate":    true,
 
 		"mode":       "Color",
 		"resolution": 600,
@@ -111,10 +121,10 @@ func doScan(device string, w io.Writer, config url.Values, enc func(io.Writer, i
 		"brightness": 0,
 		"contrast":   0,
 
-		"tl-x": 0,
-		"tl-y": 0,
-		"br-x": 216,
-		"br-y": 300,
+		"tl-x": 0.0,
+		"tl-y": 0.0,
+		"br-x": 210.0,
+		"br-y": 297.0,
 	}
 	for option, value := range defaultConfig {
 		info, err := connection.SetOption(option, value)

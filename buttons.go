@@ -5,7 +5,6 @@ import (
 	"image/jpeg"
 	"io"
 	"log"
-	"net/url"
 	"os"
 	"os/exec"
 	"time"
@@ -20,7 +19,7 @@ func buttons() {
 				if err != nil {
 					log.Printf("Copy error: %s (OpenFile)\n", err)
 				}
-				err = doScan(device, f, url.Values{}, func(w io.Writer, m image.Image) error {
+				err = doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 					return jpeg.Encode(w, m, &jpeg.Options{
 						Quality: 80,
 					})
@@ -28,7 +27,7 @@ func buttons() {
 				if err != nil {
 					log.Printf("Copy error: %s (Scan)\n", err)
 				}
-				cmd := exec.Command("lp", "/tmp/sane-webscan-copy.jpg")
+				cmd := exec.Command("lp", "-o", "portrait", "-o", "fit-to-page", "-o", "media=A4", "/tmp/sane-webscan-copy.jpg")
 				err = cmd.Run()
 				if err != nil {
 					log.Printf("Copy error: %s (lp)\n", err)

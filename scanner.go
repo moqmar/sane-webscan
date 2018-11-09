@@ -64,15 +64,16 @@ func scanJpg(c *gin.Context) {
 	if device == "" {
 		device = dev[0].Name
 	}
-	f, err := os.OpenFile("/tmp/sane-webscan.png", os.O_CREATE|os.O_RDWR, 0600)
+	f, err := os.OpenFile("/tmp/sane-webscan.jpg", os.O_CREATE|os.O_RDWR, 0600)
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
-	err = doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+	go doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
 	})
+	return
 	if errh(err, c) {
 		return
 	}

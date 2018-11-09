@@ -42,17 +42,15 @@ func options(c *gin.Context) {
 }
 
 func scan(c *gin.Context) {
-	c.Request.ParseForm()
 	c.Header("Content-Type", "image/png")
 	enc := png.Encoder{CompressionLevel: png.BestCompression}
-	err := doScan(c.Query("device"), c.Writer, c.Request.PostForm, enc.Encode)
+	err := doScan(c.Query("device"), c.Writer, url.Values{}, enc.Encode)
 	errh(err, c)
 }
 
 func scanJpg(c *gin.Context) {
-	c.Request.ParseForm()
 	c.Header("Content-Type", "image/jpeg")
-	err := doScan(c.Query("device"), c.Writer, c.Request.PostForm, func(w io.Writer, m image.Image) error {
+	err := doScan(c.Query("device"), c.Writer, url.Values{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
@@ -61,13 +59,12 @@ func scanJpg(c *gin.Context) {
 }
 
 func scanPdf(c *gin.Context) {
-	c.Request.ParseForm()
 	f, err := os.OpenFile("/tmp/sane-webscan-convert.jpg", os.O_CREATE|os.O_RDWR, 0600)
 	if errh(err, c) {
 		return
 	}
 
-	err = doScan(c.Query("device"), f, c.Request.PostForm, func(w io.Writer, m image.Image) error {
+	err = doScan(c.Query("device"), f, url.Values{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
@@ -76,13 +73,18 @@ func scanPdf(c *gin.Context) {
 		return
 	}
 
-	err = exec.Command("pdfsandwich", "-tesso", "-l deu", "/tmp/sane-webscan-convert.jpg").Run()
+	err = exec.Command("convert", "/tmp/sane-webscan-convert.jpg", "/tmp/sane-webscan-convert.pdf").Run()
+	if errh(err, c) {
+		return
+	}
+
+	err = exec.Command("pdfsandwich", "-tesso", "-l deu", "/tmp/sane-webscan-convert.pdf").Run()
 	if errh(err, c) {
 		return
 	}
 
 	c.Header("Content-Type", "application/pdf")
-	c.File("/tmp/sane-webscan-convert.pdf")
+	c.File("/tmp/sane-webscan-convert_ocr.pdf")
 }
 
 func doScan(device string, w io.Writer, config url.Values, enc func(io.Writer, image.Image) error) error {

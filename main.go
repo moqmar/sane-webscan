@@ -54,7 +54,7 @@ func main() {
 	}
 	log.Printf("Initialized devices: %d found. (2/4)\n", len(dev))
 
-	buttons()
+	go buttons()
 	log.Printf("Initialized buttons. (3/4)\n")
 
 	if r, _ := os.LookupEnv("GIN_RELEASE"); r != "debug" {

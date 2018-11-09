@@ -26,7 +26,7 @@ mkswap -f /var/swap
 swapon /var/swap
 
 # Install requirements
-sudo apt-get install -y sane cups libsane-dev libsane1 pdfsandwich tesseract-deu golang # libsane-hpaio hplip
+sudo apt-get install -y sane cups libsane-dev libsane1 pdfsandwich tesseract-deu golang
 
 # Install sane-webscan
 go get -u teahub.io/momar/sane-webscan

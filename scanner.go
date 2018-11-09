@@ -36,15 +36,20 @@ func scan(c *gin.Context) {
 		info, err := connection.SetOption(option, value[0])
 		log.Printf("Setting option %s to '%s': %+v%s", option, value[0], info, err)
 	}*/
+	connection.SetOption("brightness", 0)
+	connection.SetOption("contrast", 0)
+	connection.SetOption("lamp-off-time", 2)
+
+	connection.SetOption("mode", 0)
+	connection.SetOption("source", 0)
+	connection.SetOption("preview", 1)
+	connection.SetOption("depth", 1)
 	connection.SetOption("resolution", 3)
-	connection.SetOption("brightness", 1000)
-	connection.SetOption("contrast", 1000)
+
 	connection.SetOption("tl-x", 0)
 	connection.SetOption("tl-y", 0)
-	connection.SetOption("br-x", 210)
-	connection.SetOption("br-y", 297)
-	connection.SetOption("compression", 0)
-	connection.SetOption("mode", 2)
+	connection.SetOption("br-x", 216)
+	connection.SetOption("br-y", 300)
 
 	image, err := connection.ReadImage()
 	if err != nil {

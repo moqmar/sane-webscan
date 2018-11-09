@@ -47,8 +47,15 @@ func scan(c *gin.Context) {
 	if device == "" {
 		device = dev[0].Name
 	}
-	err := doScan(device, c.Writer, map[string]interface{}{}, enc.Encode)
-	errh(err, c)
+	f, err := os.OpenFile("/tmp/sane-webscan.png", os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		log.Printf("Copy error: %s (OpenFile)\n", err)
+	}
+	err := doScan(device, f, map[string]interface{}{}, enc.Encode)
+	if errh(err, c) {
+		return
+	}
+	c.File("/tmp/sane-webscan.png")
 }
 
 func scanJpg(c *gin.Context) {
@@ -57,12 +64,19 @@ func scanJpg(c *gin.Context) {
 	if device == "" {
 		device = dev[0].Name
 	}
-	err := doScan(device, c.Writer, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+	f, err := os.OpenFile("/tmp/sane-webscan.png", os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		log.Printf("Copy error: %s (OpenFile)\n", err)
+	}
+	err := doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
 	})
-	errh(err, c)
+	if errh(err, c) {
+		return
+	}
+	c.File("/tmp/sane-webscan.png")
 }
 
 func scanPdf(c *gin.Context) {

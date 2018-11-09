@@ -15,15 +15,15 @@
                 <section class="settings">
                     <section class="option">
                         <label><i class="fa fa-expand-arrows"></i> Resolution:</label>
-                        <v-range :value.sync="options.resolution" tooltip="hover" tooltip-dir="bottom"></v-range>
+                        <v-range :value.sync="options.resolution" min="0" max="7" tooltip="hover" tooltip-dir="bottom"></v-range>
                     </section>
                     <section class="option">
                         <label><i class="fa fa-sun"></i> Brightness:</label>
-                        <v-range :value.sync="options.brightness" tooltip="hover" tooltip-dir="bottom"></v-range>
+                        <v-range :value.sync="options.brightness" min="-100" max="100" tooltip="hover" tooltip-dir="bottom"></v-range>
                     </section>
                     <section class="option">
                         <label><i class="fa fa-adjust"></i> Contrast:</label>
-                        <v-range :value.sync="options.contrast" tooltip="hover" tooltip-dir="bottom"></v-range>
+                        <v-range :value.sync="options.contrast" min="-100" max="100" tooltip="hover" tooltip-dir="bottom"></v-range>
                     </section>
                     <section class="option">
                         <label><i class="far fa-palette"></i> Color:</label>

@@ -1,7 +1,11 @@
 package main
 
 import (
+	"errors"
 	"image/png"
+	"io"
+	"log"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjgq/sane"
@@ -25,43 +29,63 @@ func options(c *gin.Context) {
 }
 
 func scan(c *gin.Context) {
-	connection, ok := con[c.Query("device")]
-	if !ok {
+	c.Request.ParseForm()
+	err := doScan(c.Query("device"), c.Writer, c.Request.PostForm)
+	if err != nil {
 		c.Header("Content-Type", "text/plain")
-		c.String(500, "Device not found")
+		c.String(500, err.Error())
+		return
+	}
+}
+
+func doScan(device string, w io.Writer, config url.Values) error {
+	connection, ok := con[device]
+	if !ok {
+		return errors.New("Device not found")
 	}
 
-	/*c.Request.ParseForm()
-	for option, value := range c.Request.PostForm {
-		info, err := connection.SetOption(option, value[0])
-		log.Printf("Setting option %s to '%s': %+v%s", option, value[0], info, err)
-	}*/
-	connection.SetOption("brightness", 0)
-	connection.SetOption("contrast", 0)
-	connection.SetOption("lamp-off-time", 2)
+	var defaultConfig = map[string]interface{}{
+		"source":        "Flatbed",
+		"preview":       false,
+		"depth":         16,
+		"custom-gamma":  false,
+		"swdskew":       true,
+		"swcrop":        true,
+		"swdespeck":     true,
+		"swderotate":    true,
+		"lamp-off-time": 2,
+		"lamp-off-scan": false,
 
-	connection.SetOption("mode", 0)
-	connection.SetOption("source", 0)
-	connection.SetOption("preview", 1)
-	connection.SetOption("depth", 1)
-	connection.SetOption("resolution", 3)
+		"mode":       "Color",
+		"resolution": 600,
 
-	connection.SetOption("tl-x", 0)
-	connection.SetOption("tl-y", 0)
-	connection.SetOption("br-x", 216)
-	connection.SetOption("br-y", 300)
+		"brightness": 0,
+		"contrast":   0,
+
+		"tl-x": 0,
+		"tl-y": 0,
+		"br-x": 216,
+		"br-y": 300,
+	}
+	for option, value := range defaultConfig {
+		info, err := connection.SetOption(option, value)
+		log.Printf("Setting default option %s to '%s': %+v%s", option, value, info, err)
+	}
+
+	for option, value := range config {
+		info, err := connection.SetOption(option, value)
+		log.Printf("Setting option %s to '%s': %+v%s", option, value, info, err)
+	}
 
 	image, err := connection.ReadImage()
 	if err != nil {
-		c.Header("Content-Type", "text/plain")
-		c.String(500, "Scanning Error: %s", err)
-		return
+		return errors.New("Scanning Error: " + err.Error())
 	}
 
-	c.Header("Content-Type", "image/png")
-	c.Status(200)
-	err = png.Encode(c.Writer, image)
+	err = png.Encode(w, image)
 	if err != nil {
-		c.String(500, "Image Encoding Error: %s", err)
+		return errors.New("Image Encoding Error: " + err.Error())
 	}
+
+	return nil
 }

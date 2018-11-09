@@ -20,10 +20,11 @@ TODO:
 hostnamectl set-hostname scanner
 
 # Enable 1GB swap for GCC
-dd if=/dev/zero of=/var/swap bs=1024 count=1048576
+dd if=/dev/zero of=/var/swap bs=1024 count=2097152
 chmod 600 /var/swap
 mkswap -f /var/swap
 swapon /var/swap
+echo "/var/swap none swap sw 0 0" >> /etc/fstab
 
 # Install requirements
 sudo apt-get install -y sane cups libsane-dev libsane1 pdfsandwich tesseract-deu golang

@@ -2,10 +2,14 @@ package main
 
 import (
 	"errors"
+	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"log"
 	"net/url"
+	"os"
+	"os/exec"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjgq/sane"
@@ -14,6 +18,15 @@ import (
 var dev []sane.Device
 var opt = map[string][]sane.Option{}
 var con = map[string]*sane.Conn{}
+
+func errh(err error, c *gin.Context) bool {
+	if err != nil {
+		c.Header("Content-Type", "text/plain")
+		c.String(500, err.Error())
+		return true
+	}
+	return false
+}
 
 func devices(c *gin.Context) {
 	c.JSON(200, dev)
@@ -30,15 +43,49 @@ func options(c *gin.Context) {
 
 func scan(c *gin.Context) {
 	c.Request.ParseForm()
-	err := doScan(c.Query("device"), c.Writer, c.Request.PostForm)
-	if err != nil {
-		c.Header("Content-Type", "text/plain")
-		c.String(500, err.Error())
-		return
-	}
+	c.Header("Content-Type", "image/png")
+	enc := png.Encoder{CompressionLevel: png.BestCompression}
+	err := doScan(c.Query("device"), c.Writer, c.Request.PostForm, enc.Encode)
+	errh(err, c)
 }
 
-func doScan(device string, w io.Writer, config url.Values) error {
+func scanJpg(c *gin.Context) {
+	c.Request.ParseForm()
+	c.Header("Content-Type", "image/jpeg")
+	err := doScan(c.Query("device"), c.Writer, c.Request.PostForm, func(w io.Writer, m image.Image) error {
+		return jpeg.Encode(w, m, &jpeg.Options{
+			Quality: 80,
+		})
+	})
+	errh(err, c)
+}
+
+func scanPdf(c *gin.Context) {
+	c.Request.ParseForm()
+	f, err := os.OpenFile("/tmp/sane-webscan-convert.jpg", os.O_CREATE|os.O_RDWR, 0600)
+	if errh(err, c) {
+		return
+	}
+
+	err = doScan(c.Query("device"), f, c.Request.PostForm, func(w io.Writer, m image.Image) error {
+		return jpeg.Encode(w, m, &jpeg.Options{
+			Quality: 80,
+		})
+	})
+	if errh(err, c) {
+		return
+	}
+
+	err = exec.Command("pdfsandwich", "-tesso", "-l deu", "/tmp/sane-webscan-convert.jpg").Run()
+	if errh(err, c) {
+		return
+	}
+
+	c.Header("Content-Type", "application/pdf")
+	c.File("/tmp/sane-webscan-convert.pdf")
+}
+
+func doScan(device string, w io.Writer, config url.Values, enc func(io.Writer, image.Image) error) error {
 	connection, ok := con[device]
 	if !ok {
 		return errors.New("Device not found")
@@ -82,7 +129,7 @@ func doScan(device string, w io.Writer, config url.Values) error {
 		return errors.New("Scanning Error: " + err.Error())
 	}
 
-	err = png.Encode(w, image)
+	err = enc(w, image)
 	if err != nil {
 		return errors.New("Image Encoding Error: " + err.Error())
 	}

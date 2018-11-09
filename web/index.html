@@ -1,92 +1,30 @@
 <!doctype html>
 <html>
-    <head>
-        <title>SANE Webscan</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="style.css">
-        <script src="https://pro.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-eAVkiER0fL/ySiqS7dXu8TLpoR8d9KRzIYtG0Tz7pi24qgQIIupp0fn2XA1H90fP" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <main>
-            <section class="controls">
-                <section class="devices">
-                    <v-select :options="scanners" :searchable="false" :taggable="false" :filterable="false" v-model="options.scanner"></v-select>
-                </section>
-                <section class="settings">
-                    <section class="option">
-                        <label><i class="fa fa-expand-arrows"></i> Resolution:</label>
-                        <v-range :value.sync="options.resolution" min="0" max="7" tooltip="hover" tooltip-dir="bottom"></v-range>
-                    </section>
-                    <section class="option">
-                        <label><i class="fa fa-sun"></i> Brightness:</label>
-                        <v-range :value.sync="options.brightness" min="-100" max="100" tooltip="hover" tooltip-dir="bottom"></v-range>
-                    </section>
-                    <section class="option">
-                        <label><i class="fa fa-adjust"></i> Contrast:</label>
-                        <v-range :value.sync="options.contrast" min="-100" max="100" tooltip="hover" tooltip-dir="bottom"></v-range>
-                    </section>
-                    <section class="option">
-                        <label><i class="far fa-palette"></i> Color:</label>
-                        <label for="color">
-                            <i class="fa fa-fill-drip"></i>
-                        </label>
-                        <input type="checkbox" class="toggle" v-model="options.color" id="color"><label for="color"></label>
-                        <label for="color">
-                            <svg class="svg-inline--fa fa-palette fa-w-16" aria-hidden="true" data-prefix="fa" data-icon="palette" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><defs><linearGradient id="g" gradientTransform="rotate(5)"><stop style="stop-color: #F230C7" offset="0%"/><stop style="stop-color: #25C9A6" offset="100%"/></linearGradient></defs><path fill="url(#g)" d="M204.3 5C104.9 24.4 24.8 104.3 5.2 203.4c-37 187 131.7 326.4 258.8 306.7 41.2-6.4 61.4-54.6 42.5-91.7-23.1-45.4 9.9-98.4 60.9-98.4h79.7c35.8 0 64.8-29.6 64.9-65.3C511.5 97.1 368.1-26.9 204.3 5zM96 320c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm32-128c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm128-64c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm128 64c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z"></path></svg>
-                        </label>
-                    </section>
-                    <section class="option">
-                        <label><i class="fa fa-file-export"></i> Format:</label>
-                        <input type="radio" class="toggle" v-model="options.filetype" name="filetype" id="filetype-pdf" value="pdf"><label for="filetype-pdf"><i class="fa fa-file-pdf"></i><span>PDF</span></label>
-                        <input type="radio" class="toggle" v-model="options.filetype" name="filetype" id="filetype-jpeg" value="jpeg"><label for="filetype-jpeg"><i class="fa fa-camera"></i><span>JPEG</span></label>
-                        <input type="radio" class="toggle" v-model="options.filetype" name="filetype" id="filetype-png" value="png"><label for="filetype-png"><i class="fa fa-image"></i><span>PNG</span></label>
-                        <input type="radio" class="toggle" v-model="options.filetype" name="filetype" id="filetype-tiff" value="tiff"><label for="filetype-tiff"><i class="fa fa-file-invoice"></i><span>TIFF</span></label>
-                    </section>
-                    <section class="option" :style="{visibility: (options.filetype == 'pdf' || options.filetype == 'jpeg') ? 'visible' : 'hidden'}">
-                        <label><i class="fa fa-percentage"></i> JPEG Quality:</label>
-                        <v-range :value.sync="options.quality" tooltip="hover" tooltip-dir="bottom"></v-range>
-                    </section>
-                </section>
-                <section class="actions">
-                    <button><i class="fa fa-search"></i> Quick Preview</button>
-                    <button class="primary"><i class="fa fa-file-signature"></i> Scan Page</button>
-                </section>
-                <section class="files" v-show="pages.length > 0">
-                    <div class="file">
-                        <span><img src="https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fimgv2-1-f.scribdassets.com%2Fimg%2Fdocument%2F112295035%2Foriginal%2Fc0deca1a1f%2F1464801830&f=1"></span>
-                        <input type="text" value="Page 1">
-                        <span><i class="fa fa-times"></i></span>
-                    </div>
-                </section>
-                <section class="actions" v-show="pages.length > 0">
-                    <button class="primary"><i class="fa fa-download"></i> Download</button>
-                </section>
-            </section>
-            <section class="preview">
-                <div class="crop">
-                    <img ref="preview">
-                    <div class="top" style="height: 30px;"></div>
-                    <div class="left" style="width: 20px;"></div>
-                    <div class="selection" style="height: 200px; width: 300px;">
-                        <div data-direction="top-left"></div>
-                        <div data-direction="top"></div>
-                        <div data-direction="top-right"></div>
-                        <div data-direction="left"></div>
-                        <div data-direction="right"></div>
-                        <div data-direction="bottom-left"></div>
-                        <div data-direction="bottom"></div>
-                        <div data-direction="bottom-right"></div>
-                    </div>
-                    <div class="right"></div>
-                    <div class="bottom"></div>
-                </div>
-            </section>
-        </main>
-        <script src="https://unpkg.com/vue@latest"></script>
-        <script src="https://unpkg.com/vue-select@latest"></script>
-        <script>window.exports={}</script>
-        <script src="https://unpkg.com/vue-slider-component@latest"></script>
-        <script>window.VueRange=window.exports["vue-slider-component"];delete window.exports;</script>
-        <script src="script.js"></script>
-    </body>
+  <head>
+    <title>Scannen</title>
+    <meta charset="utf-8">
+    <style>
+      * { box-sizing: border-box; }
+      body { background: #fff; color: #666; font-family: sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; min-height: 100vh; align-items: center; }
+      main { display: flex; justify-content: center; } 
+      #loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; display: none; }
+      a { display: flex; flex-direction: column; align-items: center; margin: 5px; padding: 10px; width: 11em; color: #000; border-radius: 5px; text-decoration: none; border: 1px solid transparent; }
+      a:hover { border: 1px solid #000; }
+      body>small { margin-top: 20px; font-size: 0.8em; color: #bbb; }
+      
+    </style>
+    <script>
+      function load() { document.getElementById("loading").style.display = "flex"; document.body.focus(); document.body.blur(); }
+    </script>
+  </head>
+  <body>
+    <h2>Format auswählen:</h2>
+    <main>
+      <a href="/scan.pdf" onclick="load()"><img src="https://img.icons8.com/clouds/100/000000/pdf.png"><strong>PDF/Dokument</strong><small>Beste Kompatibilität</small></a>
+      <a href="/scan.jpg" onclick="load()"><img src="https://img.icons8.com/clouds/100/000000/compact-camera.png"><strong>JPG/Foto</strong><small>Kleinste Dateien</small></a>
+      <a href="/scan.png" onclick="load()"><img src="https://img.icons8.com/clouds/100/000000/image-file.png"><strong>PNG/Grafik</strong><small>Beste Qualität</small></a>
+    </main>
+    <small>Icons by Icons8</small>
+    <div id="loading"><img src="http://rendro.github.io/SVG-Spinner/images/fading-loader.svg"></div>
+  </body>
 </html>

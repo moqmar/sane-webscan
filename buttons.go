@@ -2,7 +2,6 @@ package main
 
 import (
 	"image"
-	"image/jpeg"
 	"io"
 	"log"
 	"os/exec"
@@ -20,8 +19,9 @@ func buttons() {
 				r, w := io.Pipe()
 				cmd.Stdin = r
 				go doScan(device, w, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
-					return tiff.Encode(w, m, &jpeg.Options{
-						Quality: 80,
+					return tiff.Encode(w, m, &tiff.Options{
+						Compression: tiff.Uncompressed,
+						Predictor:   true,
 					})
 				})
 				err = cmd.Run()

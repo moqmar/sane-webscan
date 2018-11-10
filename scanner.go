@@ -156,12 +156,14 @@ func doScan(device string, w io.Writer, config map[string]interface{}, enc func(
 	log.Printf("Reading image...")
 	image, err := connection.ReadImage()
 	if err != nil {
+		log.Printf("Scanning error: %s\n", err)
 		return errors.New("Scanning Error: " + err.Error())
 	}
 
 	log.Printf("Encoding image...")
 	err = enc(w, image)
 	if err != nil {
+		log.Printf("Image Encoding error: %s\n", err)
 		return errors.New("Image Encoding Error: " + err.Error())
 	}
 	log.Printf("Scan complete.")

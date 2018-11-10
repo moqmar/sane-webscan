@@ -133,7 +133,7 @@ func doScan(device string, w io.Writer, config map[string]interface{}, enc func(
 		"mode":       "Color",
 		"resolution": 600,
 
-		"brightness": 0,
+		"brightness": 10,
 		"contrast":   0,
 
 		"tl-x": 0.0,

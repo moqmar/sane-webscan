@@ -68,16 +68,15 @@ func scanJpg(c *gin.Context) {
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
-	go doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+	doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
 	})
-	return
 	if errh(err, c) {
 		return
 	}
-	c.File("/tmp/sane-webscan.png")
+	c.File("/tmp/sane-webscan.jpg")
 }
 
 func scanPdf(c *gin.Context) {
@@ -116,6 +115,7 @@ func scanPdf(c *gin.Context) {
 }
 
 func doScan(device string, w io.Writer, config map[string]interface{}, enc func(io.Writer, image.Image) error) error {
+	log.Printf("Connecting to %s\n", device)
 	connection, ok := con[device]
 	if !ok {
 		return errors.New("Device not found")
@@ -141,25 +141,30 @@ func doScan(device string, w io.Writer, config map[string]interface{}, enc func(
 		"br-x": 210.0,
 		"br-y": 297.0,
 	}
+	log.Printf("Applying default configuration...\n")
 	for option, value := range defaultConfig {
 		info, err := connection.SetOption(option, value)
 		log.Printf("Setting default option %s to '%s': %+v%s", option, value, info, err)
 	}
 
+	log.Printf("Applying additional configuration...\n")
 	for option, value := range config {
 		info, err := connection.SetOption(option, value)
 		log.Printf("Setting option %s to '%s': %+v%s", option, value, info, err)
 	}
 
+	log.Printf("Reading image...")
 	image, err := connection.ReadImage()
 	if err != nil {
 		return errors.New("Scanning Error: " + err.Error())
 	}
 
+	log.Printf("Encoding image...")
 	err = enc(w, image)
 	if err != nil {
 		return errors.New("Image Encoding Error: " + err.Error())
 	}
+	log.Printf("Scan complete.")
 
 	return nil
 }

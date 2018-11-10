@@ -19,13 +19,13 @@ func buttons() {
 				//r, w := io.Pipe()
 				//cmd.Stdin = r
 				w := os.OpenFile("/tmp/sane-webscan-copy.tif", os.O_CREATE|os.O_RDWR, 0600)
-				go doScan(device, w, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+				err := doScan(device, w, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 					return tiff.Encode(w, m, &tiff.Options{
 						Compression: tiff.Uncompressed,
 						Predictor:   true,
 					})
 				})
-				err = cmd.Run()
+				//err = cmd.Run()
 				if err != nil {
 					log.Printf("Copy error: %s (lp)\n", err)
 				}

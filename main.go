@@ -2,9 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"image"
-	"io"
 	"log"
 	"mime"
 	"net/http"
@@ -15,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjgq/sane"
-	"golang.org/x/image/tiff"
 )
 
 func main() {
@@ -58,8 +54,9 @@ func main() {
 	}
 	log.Printf("Initialized devices: %d found. (2/4)\n", len(dev))
 
+	go scanLoop()
 	go buttons()
-	log.Printf("Initialized buttons. (3/4)\n")
+	log.Printf("Initialized scanner and buttons. (3/4)\n")
 
 	if r, _ := os.LookupEnv("GIN_RELEASE"); r != "debug" {
 		gin.SetMode(gin.ReleaseMode)
@@ -68,7 +65,7 @@ func main() {
 
 	r.GET("/devices.json", devices)
 	r.GET("/options.json", options)
-	r.GET("/scan.png", scan)
+	r.GET("/scan.png", scanPng)
 	r.GET("/scan.jpg", scanJpg)
 	r.GET("/scan.pdf", scanPdf)
 	//r.POST("/convert/:format", convert)
@@ -79,23 +76,6 @@ func main() {
 	}
 
 	log.Printf("Initialized webserver (default port: 8080). (4/4)\n")
-
-	f, err := os.OpenFile("/tmp/sane-webscan.jpg", os.O_CREATE|os.O_RDWR, 0600)
-	if err != nil {
-		log.Printf("Copy error: %s (OpenFile)\n", err)
-	}
-
-	ch := make(chan error)
-	fmt.Printf("%+v\n", dev)
-	go doScan(ch, dev[0].Name, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
-		return tiff.Encode(w, m, &tiff.Options{
-			Compression: tiff.Deflate,
-			Predictor:   true,
-		})
-	})
-	if err := <-ch; err != nil {
-		panic(err)
-	}
 
 	err = r.Run()
 	if err != nil {

@@ -1,14 +1,9 @@
 package main
 
 import (
-	"image"
-	"io"
 	"log"
-	"os"
 	"os/exec"
 	"time"
-
-	"golang.org/x/image/tiff"
 )
 
 func buttons() {
@@ -16,26 +11,27 @@ func buttons() {
 		for device, connection := range con {
 			v, err := connection.GetOption("copy")
 			if err == nil && v.(bool) == true {
-				w, err := os.OpenFile("/tmp/sane-webscan-copy.tif", os.O_CREATE|os.O_WRONLY, 0600)
-				if err != nil {
-					log.Printf("Copy error: %s (file)\n", err)
+
+				// Scan
+				scan <- Options{
+					Config: map[string]interface{}{
+						"resolution": 300,
+					},
+					Device: device,
+					Format: TIFF,
 				}
-				ch := make(chan error)
-				go doScan(ch, device, w, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
-					return tiff.Encode(w, m, &tiff.Options{
-						Compression: tiff.Deflate,
-						Predictor:   true,
-					})
-				})
-				if err = <-ch; err != nil {
+				err := <-wait
+				if err != nil {
 					log.Printf("Copy error: %s (scan)\n", err)
 				}
-				w.Close()
-				cmd := exec.Command("lp", "-o", "portrait", "-o", "fit-to-page", "-o", "media=iso_a4_210x297mm", "/tmp/sane-webscan-copy.tif")
+
+				// Print
+				cmd := exec.Command("lp", "-o", "portrait", "-o", "fit-to-page", "-o", "media=iso_a4_210x297mm", "/tmp/sane-webscan.tif")
 				err = cmd.Run()
 				if err != nil {
-					log.Printf("Copy error: %s (lp)\n", err)
+					log.Printf("Copy error: %s (print)\n", err)
 				}
+
 			}
 		}
 		time.Sleep(50 * time.Millisecond)

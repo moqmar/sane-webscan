@@ -20,13 +20,14 @@ func buttons() {
 				if err != nil {
 					log.Printf("Copy error: %s (file)\n", err)
 				}
-				err = doScan(device, w, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+				ch := make(chan error)
+				go doScan(ch, device, w, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 					return tiff.Encode(w, m, &tiff.Options{
 						Compression: tiff.Deflate,
 						Predictor:   true,
 					})
 				})
-				if err != nil {
+				if err = <-ch; err != nil {
 					log.Printf("Copy error: %s (scan)\n", err)
 				}
 				w.Close()

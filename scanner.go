@@ -51,8 +51,9 @@ func scan(c *gin.Context) {
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
-	err = doScan(device, f, map[string]interface{}{}, enc.Encode)
-	if errh(err, c) {
+	ch := make(chan error)
+	go doScan(ch, device, f, map[string]interface{}{}, enc.Encode)
+	if err = <-ch; errh(err, c) {
 		return
 	}
 	c.File("/tmp/sane-webscan.png")
@@ -68,12 +69,13 @@ func scanJpg(c *gin.Context) {
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
-	doScan(device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+	ch := make(chan error)
+	go doScan(ch, device, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
 	})
-	if errh(err, c) {
+	if err := <-ch; errh(err, c) {
 		return
 	}
 	c.File("/tmp/sane-webscan.jpg")
@@ -89,14 +91,15 @@ func scanPdf(c *gin.Context) {
 	if device == "" {
 		device = dev[0].Name
 	}
-	err = doScan(device, f, map[string]interface{}{
+	ch := make(chan error)
+	go doScan(ch, device, f, map[string]interface{}{
 		"resolution": 300,
 	}, func(w io.Writer, m image.Image) error {
 		return jpeg.Encode(w, m, &jpeg.Options{
 			Quality: 80,
 		})
 	})
-	if errh(err, c) {
+	if err = <-ch; errh(err, c) {
 		return
 	}
 
@@ -114,11 +117,12 @@ func scanPdf(c *gin.Context) {
 	c.File("/tmp/sane-webscan-convert_ocr.pdf")
 }
 
-func doScan(device string, w io.Writer, config map[string]interface{}, enc func(io.Writer, image.Image) error) error {
+func doScan(ch chan error, device string, w io.Writer, config map[string]interface{}, enc func(io.Writer, image.Image) error) {
 	log.Printf("Connecting to %s\n", device)
 	connection, ok := con[device]
 	if !ok {
-		return errors.New("Device not found")
+		ch <- errors.New("Device not found")
+		return
 	}
 
 	var defaultConfig = map[string]interface{}{
@@ -157,16 +161,18 @@ func doScan(device string, w io.Writer, config map[string]interface{}, enc func(
 	image, err := connection.ReadImage()
 	if err != nil {
 		log.Printf("Scanning error: %s\n", err)
-		return errors.New("Scanning Error: " + err.Error())
+		ch <- errors.New("Scanning Error: " + err.Error())
+		return
 	}
 
 	log.Printf("Encoding image...")
 	err = enc(w, image)
 	if err != nil {
 		log.Printf("Image Encoding error: %s\n", err)
-		return errors.New("Image Encoding Error: " + err.Error())
+		ch <- errors.New("Image Encoding Error: " + err.Error())
+		return
 	}
 	log.Printf("Scan complete.")
 
-	return nil
+	ch <- nil
 }

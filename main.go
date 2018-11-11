@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"image"
+	"image/jpeg"
+	"io"
 	"log"
 	"mime"
 	"net/http"
@@ -75,6 +78,20 @@ func main() {
 	}
 
 	log.Printf("Initialized webserver (default port: 8080). (4/4)\n")
+
+	f, err := os.OpenFile("/tmp/sane-webscan.jpg", os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		log.Printf("Copy error: %s (OpenFile)\n", err)
+	}
+	ch := make(chan error)
+	go doScan(ch, dev[0].Name, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
+		return jpeg.Encode(w, m, &jpeg.Options{
+			Quality: 80,
+		})
+	})
+	if err := <-ch; err != nil {
+		panic(err)
+	}
 
 	err = r.Run()
 	if err != nil {

@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"image"
-	"image/jpeg"
 	"io"
 	"log"
 	"mime"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjgq/sane"
+	"golang.org/x/image/tiff"
 )
 
 func main() {
@@ -83,10 +84,13 @@ func main() {
 	if err != nil {
 		log.Printf("Copy error: %s (OpenFile)\n", err)
 	}
+
 	ch := make(chan error)
+	fmt.Printf("%+v\n", dev)
 	go doScan(ch, dev[0].Name, f, map[string]interface{}{}, func(w io.Writer, m image.Image) error {
-		return jpeg.Encode(w, m, &jpeg.Options{
-			Quality: 80,
+		return tiff.Encode(w, m, &tiff.Options{
+			Compression: tiff.Deflate,
+			Predictor:   true,
 		})
 	})
 	if err := <-ch; err != nil {
